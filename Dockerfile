@@ -1,7 +1,14 @@
-FROM golang:alpine
+FROM golang:alpine AS build
 
-WORKDIR /sur/app
+WORKDIR /app
 
-COPY main.go .
+COPY src/main.go . 
 
-ENTRYPOINT [ "go", "run", "main.go" ]
+RUN CGO_ENABLED=0 GOOS=linux go build -o /src main.go
+
+
+FROM scratch
+
+COPY --from=build /src /app/bin
+
+CMD [ "/app/bin" ]
